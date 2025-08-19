@@ -1,0 +1,76 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX_DRIVERS 5
+#define MAX_USERS 5
+
+typedef struct {
+    char name[50];
+    int available;
+} Driver;
+
+typedef struct {
+    char name[50];
+    char pickup[50];
+    char drop[50];
+} User;
+
+typedef struct {
+    User user;
+    Driver *driver;
+    char status[20];
+} Ride;
+
+Driver drivers[MAX_DRIVERS];
+int driverCount = 0;
+
+void addDriver(const char* name) {
+    if (driverCount < MAX_DRIVERS) {
+        strcpy(drivers[driverCount].name, name);
+        drivers[driverCount].available = 1;
+        driverCount++;
+    }
+}
+
+Driver* findAvailableDriver() {
+    for (int i = 0; i < driverCount; i++) {
+        if (drivers[i].available) {
+            return &drivers[i];
+        }
+    }
+    return NULL;
+}
+
+void requestRide(User user) {
+    Driver *driver = findAvailableDriver();
+    if (driver != NULL) {
+        Ride ride;
+        ride.user = user;
+        ride.driver = driver;
+        strcpy(ride.status, "Ongoing");
+        driver->available = 0;
+        printf("Ride assigned to driver: %s\n", driver->name);
+        printf("Ride started for %s with driver %s\n", user.name, driver->name);
+
+        strcpy(ride.status, "Completed");
+        driver->available = 1;
+        printf("Ride completed for %s with driver %s\n", user.name, driver->name);
+    } else {
+        printf("No available drivers for %s's request.\n", user.name);
+    }
+}
+
+int main() {
+    addDriver("Alice");
+    addDriver("Bob");
+    User user1 = {"John", "Point A", "Point B"};
+    requestRide(user1);
+
+    User user2 = {"Emma", "Point C", "Point D"};
+    requestRide(user2);
+
+    User user3 = {"David", "Point E", "Point F"};
+    requestRide(user3);
+
+    return 0;
+}
